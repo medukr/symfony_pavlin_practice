@@ -1,8 +1,14 @@
-{% extends 'main/base.html.twig' %}
+{% extends 'admin/adminbase.html.twig' %}
 
 {% block body %}
 
-    <h1>{{ title }}</h1>
+    <div class="container-fluid">
+        <div class="row no-gutters">
+            <div class="col-12">
+                <h1 class="display-4 text-center mt-5">{{ title }}</h1>
+            </div>
+        </div>
+    </div>
 
     {{ form(form) }}
 
