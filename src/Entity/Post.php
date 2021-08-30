@@ -10,8 +10,8 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Post
 {
-    private const PUBLISHED = 1;
-    private const DRAFT     = 0;
+    public const PUBLISHED = 1;
+    public const DRAFT     = 0;
 
     /**
      * @ORM\Id
@@ -49,6 +49,12 @@ class Post
      * @ORM\Column(type="boolean")
      */
     private $is_published;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=Category::class)
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $category;
 
     public function getId(): ?int
     {
@@ -138,6 +144,18 @@ class Post
     public function setIsDraft()
     {
         $this->is_published = self::DRAFT;
+    }
+
+    public function getCategory(): ?Category
+    {
+        return $this->category;
+    }
+
+    public function setCategory(?Category $category): self
+    {
+        $this->category = $category;
+
+        return $this;
     }
 
 }
