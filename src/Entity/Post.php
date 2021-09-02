@@ -38,7 +38,7 @@ class Post
     /**
      * @ORM\Column(type="datetime_immutable")
      */
-    private $cteate_at;
+    private $create_at;
 
     /**
      * @ORM\Column(type="datetime_immutable")
@@ -97,19 +97,19 @@ class Post
         return $this;
     }
 
-    public function getCteateAt(): ?\DateTimeImmutable
+    public function getCreateAt(): ?\DateTimeImmutable
     {
-        return $this->cteate_at;
+        return $this->create_at;
     }
 
     public function setCrateAtValue()
     {
-        $this->cteate_at = new \DateTimeImmutable();
+        $this->create_at = new \DateTimeImmutable();
     }
 
-    public function setCteateAt(\DateTimeImmutable $cteate_at): self
+    public function setCreateAt(\DateTimeImmutable $create_at): self
     {
-        $this->cteate_at = $cteate_at;
+        $this->create_at = $create_at;
 
         return $this;
     }

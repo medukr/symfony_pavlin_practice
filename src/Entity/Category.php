@@ -10,6 +10,9 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Category
 {
+    public const PUBLISHED = 1;
+    public const DRAFT     = 0;
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -88,6 +91,11 @@ class Category
         return $this;
     }
 
+    public function setCrateAtValue()
+    {
+        $this->create_at = new \DateTimeImmutable();
+    }
+
     public function getUpdateAt(): ?\DateTimeImmutable
     {
         return $this->update_at;
@@ -100,14 +108,26 @@ class Category
         return $this;
     }
 
+    public function setUpdateAtValue()
+    {
+        $this->update_at = new \DateTimeImmutable();
+    }
+
+    public function setIsPublished(): self
+    {
+        $this->is_published = self::PUBLISHED;
+
+        return $this;
+    }
+
     public function getIsPublished(): ?bool
     {
         return $this->is_published;
     }
 
-    public function setIsPublished(bool $is_published): self
+    public function setIsDraft(): self
     {
-        $this->is_published = $is_published;
+        $this->is_published = self::DRAFT;
 
         return $this;
     }
@@ -123,4 +143,8 @@ class Category
 
         return $this;
     }
+
+
+
+
 }

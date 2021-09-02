@@ -2,6 +2,7 @@
 
 namespace App\Controller\Admin;
 
+use App\Entity\Category;
 use App\Entity\Post;
 use App\Form\PostType;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -19,10 +20,13 @@ class AdminPostController extends AdminBaseController
         $posts = $this->getDoctrine()->getRepository(Post::class)
             ->findAll();
 
+        $checkCategory = $this->getDoctrine()->getRepository(Category::class)
+            ->findAll();
 
         return $this->render('admin/post/index.html.twig', array_merge($this->renderDefault(), [
             'title' => 'Посты',
-            'posts' => $posts
+            'posts' => $posts,
+            'check_category' => $checkCategory
         ]));
     }
 
@@ -59,4 +63,42 @@ class AdminPostController extends AdminBaseController
         ]));
     }
 
+
+    /**
+     * @Route("/admin/post/update/{id}", name="admin_post_update")
+     * @param int $id
+     * @param Request $request
+     * @return RedirectResponse|Response
+     */
+    public function update(int $id, Request $request)
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $post = $this->getDoctrine()->getRepository(Post::class)
+            ->find($id);
+
+        $form = $this->createForm(PostType::class, $post);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            if ($form->get('save')->isClicked()) {
+                $post->setUpdateAtValue();
+
+                $this->addFlash('success', 'Пост обновлен');
+            }
+            if ($form->get('delete')->isClicked()) {
+                $em->remove($post);
+
+                $this->addFlash('success', 'Пост удален');
+            }
+
+            $em->flush();
+            return $this->redirectToRoute('admin_post');
+        }
+
+        return $this->render('admin/post/form.html.twig', array_merge($this->renderDefault(), [
+            'title' => 'Редактирование поста',
+            'form' => $form->createView()
+        ]));
+    }
 }
