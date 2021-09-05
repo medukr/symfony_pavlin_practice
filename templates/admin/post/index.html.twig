@@ -30,7 +30,7 @@
                 {% endfor %}
             </div>
         </div>
-    </div>
+    </div>/
     <div class="container">
         <div class="row no-gutters">
             <div class="col-12  mt-5">
@@ -45,6 +45,8 @@
                 <ul>
                     {% for post in posts %}
                         <li>
+                            <img src="{{ asset('uploads/post/') }}{{ post.image }}"
+                                 style="width: 100px" alt="">
                             {{ post.title }}
                             <a href="{{ path('admin_post_update', {'id': post.id}) }}" class="btn-link">Редактировать</a>
                         </li>

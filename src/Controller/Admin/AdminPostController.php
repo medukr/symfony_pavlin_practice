@@ -5,6 +5,7 @@ namespace App\Controller\Admin;
 use App\Entity\Category;
 use App\Entity\Post;
 use App\Form\PostType;
+use App\Service\FileManagerServiceInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -35,7 +36,7 @@ class AdminPostController extends AdminBaseController
      * @param Request $request
      * @return RedirectResponse|Response
      */
-    public function create(Request $request)
+    public function create(Request $request, FileManagerServiceInterface $fileManagerService)
     {
         $em = $this->getDoctrine()->getManager();
 
@@ -45,6 +46,11 @@ class AdminPostController extends AdminBaseController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $image = $form->get('image')->getData();
+            if ($image) {
+                $filename = $fileManagerService->imagePostUpload($image);
+                $post->setImage($filename);
+            }
             $post->setCrateAtValue();
             $post->setUpdateAtValue();
             $post->setIsPublished();
@@ -70,7 +76,7 @@ class AdminPostController extends AdminBaseController
      * @param Request $request
      * @return RedirectResponse|Response
      */
-    public function update(int $id, Request $request)
+    public function update(int $id, Request $request, FileManagerServiceInterface $fileManagerService)
     {
         $em = $this->getDoctrine()->getManager();
 
@@ -82,11 +88,26 @@ class AdminPostController extends AdminBaseController
 
         if ($form->isSubmitted() && $form->isValid()) {
             if ($form->get('save')->isClicked()) {
+                $image = $form->get('image')->getData();
+                if ($image) {
+                    $oldImage = $post->getImage();
+                    if ($oldImage) {
+                        $fileManagerService->removePostImage($oldImage);
+                    }
+
+                    $filename = $fileManagerService->imagePostUpload($image);
+                    $post->setImage($filename);
+                }
                 $post->setUpdateAtValue();
 
                 $this->addFlash('success', 'Пост обновлен');
             }
             if ($form->get('delete')->isClicked()) {
+                $image = $post->getImage();
+                if ($image) {
+                    $fileManagerService->removePostImage($image);
+                }
+
                 $em->remove($post);
 
                 $this->addFlash('success', 'Пост удален');
