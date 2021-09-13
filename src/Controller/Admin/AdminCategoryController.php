@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use App\Entity\Category;
 use App\Form\CategotyType;
+use App\Repository\CategoryRepositoryInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -12,17 +13,23 @@ use Symfony\Component\Routing\Annotation\Route;
 class AdminCategoryController extends AdminBaseController
 {
     /**
+     * @var CategoryRepositoryInterface
+     */
+    private CategoryRepositoryInterface $categoryRepository;
+
+    public function __construct(CategoryRepositoryInterface $categoryRepository)
+    {
+        $this->categoryRepository = $categoryRepository;
+    }
+
+    /**
      * @Route("/admin/category", name="admin_category")
      */
     public function index(): Response
     {
-        $categories = $this->getDoctrine()->getRepository(Category::class)
-            ->findAll();
-
-
         return $this->render('admin/category/index.html.twig', array_merge($this->renderDefault(), [
             'title' => 'Категории',
-            'categories' => $categories
+            'categories' => $this->categoryRepository->getAllCategory()
         ]));
     }
 
@@ -34,20 +41,13 @@ class AdminCategoryController extends AdminBaseController
      */
     public function create(Request $request)
     {
-        $em = $this->getDoctrine()->getManager();
-
         $category = new Category();
         $form = $this->createForm(CategotyType::class, $category);
 
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $category->setCrateAtValue();
-            $category->setUpdateAtValue();
-            $category->setIsPublished();
-
-            $em->persist($category);
-            $em->flush();
+            $this->categoryRepository->setCreateCategory($category);
 
             $this->addFlash('success', 'Категория добавлена');
 
@@ -68,27 +68,23 @@ class AdminCategoryController extends AdminBaseController
      */
     public function update(int $id, Request $request)
     {
-        $em = $this->getDoctrine()->getManager();
-
-        $category = $this->getDoctrine()->getRepository(Category::class)
-            ->find($id);
+        $category = $this->categoryRepository->getOneCategory($id);
 
         $form = $this->createForm(CategotyType::class, $category);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             if ($form->get('save')->isClicked()) {
-                $category->setUpdateAtValue();
+                $this->categoryRepository->setUpdateCategory($category);
 
                 $this->addFlash('success', 'Категория обновлена');
             }
             if ($form->get('delete')->isClicked()) {
-                $em->remove($category);
+                $this->categoryRepository->setDeleteCategory($category);
 
                 $this->addFlash('success', 'Категория удалена');
             }
 
-            $em->flush();
             return $this->redirectToRoute('admin_category');
         }
 
